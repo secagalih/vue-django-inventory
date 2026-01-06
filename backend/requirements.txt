@@ -1,0 +1,35 @@
+# Core Django
+Django==6.0
+djangorestframework==3.16.1
+
+# CORS support
+django-cors-headers==4.9.0
+
+# Environment configuration
+python-decouple==3.8
+
+# Database adapter for production (optional)
+# psycopg2-binary==2.9.9  # PostgreSQL adapter (uncomment for production)
+
+# Development dependencies (optional)
+# black==24.1.1             # Code formatter
+# isort==5.13.2             # Import sorter
+# flake8==7.0.0             # Linter
+# pylint==3.0.3             # Linter
+# django-debug-toolbar==4.2.0  # Debug toolbar
+
+# Testing (optional)
+# pytest==7.4.4
+# pytest-django==4.7.0
+# pytest-cov==4.1.0
+# coverage==7.4.0
+
+# API Documentation (optional)
+# drf-spectacular==0.27.0   # OpenAPI/Swagger docs
+
+# Rate limiting (optional)
+# django-ratelimit==4.1.0
+
+# Security (optional)
+# django-cryptography==1.1
+
