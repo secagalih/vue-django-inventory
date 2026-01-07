@@ -4,22 +4,17 @@ import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <div>
-    <!-- <header>
-      <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-      <div class="wrapper">
-        <HelloWorld msg="You did it!" />
-
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-        </nav>
-      </div>
-    </header> -->
-
-    <RouterView />
-  </div>
+  <v-app>
+    <v-app-bar :elevation="2">
+      <template v-slot:prepend>
+        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="50" />
+      </template>
+      <v-app-bar-title>Inventory</v-app-bar-title>
+    </v-app-bar>
+    <v-main>
+      <RouterView />
+    </v-main>
+  </v-app>
 </template>
 
 <style scoped>
