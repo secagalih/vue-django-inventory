@@ -47,11 +47,15 @@ const headers = [
 ]
 
 const dialog = ref(false)
-const { items ,fetchItems } = useInventory()
+const { fetchItems } = useInventory()
+const items = ref([])
+const loading = ref(false)
 
 
-onMounted(() => {
-  fetchItems()
+onMounted(async () => {
+  loading.value = true
+  items.value = await fetchItems()
+  loading.value = false
 })
 </script>
 

@@ -1,30 +1,27 @@
 import inventoryService from '@/services/inventoryService'
-import { ref } from 'vue'
-
 
 export function useInventory() {
-  const items = ref([])
-  const loading = ref(false)
-  const error = ref(null)
-
   const fetchItems = async () => {
-    loading.value = true
-    error.value = null
-
-    try {
-      const response = await inventoryService.getItems()
-      items.value = response.data
-    } catch (err) {
-      error.value = err.message || 'Failed to fetch item'
-      console.error('Error fetching items:', err)
-    } finally {
-      loading.value = false
-    }
+    const response = await inventoryService.getItems()
+    return response.data
   }
 
-
-  return {
-    fetchItems,
-    items
+  const addItems = async (data) => {
+    const response = await inventoryService.createItem(data)
+    return response.data
   }
+
+  const updateItem = async ({ data, id }) => {
+    const response = await inventoryService.updateItem({ id: id, data: data })
+    return response.data
+
+  }
+
+  const deleteItem = async ({ id }) => {
+    const response = await inventoryService.deleteItem({ id: id, })
+    return response.data
+
+  }
+
+  return { fetchItems, addItems, updateItem, deleteItem }
 }
