@@ -89,6 +89,13 @@ DATABASES = {
     }
 }
 
+# Source - https://stackoverflow.com/a
+# Posted by Chris, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-01-07, License - CC BY-SA 4.0
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
