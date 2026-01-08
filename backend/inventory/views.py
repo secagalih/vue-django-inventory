@@ -5,16 +5,25 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Product
 from .serializers import ProductSerializer
-
+from backend.inventory import serializers
+from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
+
+
+class ProductPagination(PageNumberPagination):
+    pag_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class ProductListView(APIView):
     #! GET /api/products/list-items/
     def get(self, request):
         products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
+        paginator = ProductPagination()
+        paginated_products = paginator.paginate_queryset(product, request)
+        serializer = ProductSerializer(paginated_products, many=True)
         return Response(serializer.data)
 
 
@@ -46,10 +55,15 @@ class ProductDeleteView(APIView):
     # !POST /api/products/<uuid:pk>/delete/
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(product)
+        deleted_data = serializer.data
         product.delete()
         return Response(
-            {"message": "Product deleted successfully"},
-            status=status.HTTP_204_NO_CONTENT,
+            {
+                "message": "Product deleted successfully",
+                "deleted_product": deleted_data,
+            },
+            status=status.HTTP_200_OK,
         )
 
     # end def
