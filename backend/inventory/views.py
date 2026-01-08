@@ -1,3 +1,4 @@
+from itertools import product
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -45,13 +46,10 @@ class ProductDeleteView(APIView):
     # !POST /api/products/<uuid:pk>/delete/
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product, data=request.data)
-        if serializer.is_valid():
-            serializer.delete()
-            return Response(
-                {"message": "Product deleted successfully"},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        product.delete()
+        return Response(
+            {"message": "Product deleted successfully"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
     # end def

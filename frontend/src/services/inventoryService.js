@@ -15,6 +15,7 @@ export default {
   },
 
   deleteItem({id}) {
+    console.log(id)
     return apiClient.post(`/products/delete/${id}`)
   }
 

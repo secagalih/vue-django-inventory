@@ -3,53 +3,101 @@ import { useInventory } from '@/composable/useInventory'
 import { onMounted, ref } from 'vue'
 
 
-// const items = [
-//   {
-//     "id": "4a750e2e-3319-47cd-9f4c-60ac5f239beb",
-//     "name": "Test Product",
-//     "sku": "TEST-001",
-//     "price": "19.99",
-//     "stock": 12,
-//     "created_at": "2026-01-07T04:00:38.100956Z"
-//   },
-//   {
-//     "id": "2e65f775-9a2f-44d6-87a5-3a15845814e9",
-//     "name": "Test Product2",
-//     "sku": "TEST-002",
-//     "price": "29.99",
-//     "stock": 10,
-//     "created_at": "2026-01-07T04:37:45.928770Z"
-//   },
-//   {
-//     "id": "84d0f166-af6a-49e9-b16e-67a8e697e798",
-//     "name": "Macbook Air M5",
-//     "sku": "TEST-004",
-//     "price": "1299.99",
-//     "stock": 10,
-//     "created_at": "2026-01-07T06:07:37.387278Z"
-//   },
-//   {
-//     "id": "9ef1aefb-e17d-4532-95ff-e1e7795d5481",
-//     "name": "Macbook Air M3",
-//     "sku": "TEST-005",
-//     "price": "999.99",
-//     "stock": 10,
-//     "created_at": "2026-01-07T06:07:53.569228Z"
-//   }
-// ]
-
 const headers = [
   { title: 'Item Name', align: 'start', key: 'name' },
   { title: 'SKU', align: 'start', key: 'sku' },
   { title: 'Price', align: 'start', key: 'price' },
   { title: 'Stock', align: 'start', key: 'stock' },
+  { title: 'Action', key: 'action' }
 
 ]
 
 const dialog = ref(false)
-const { fetchItems } = useInventory()
+const { fetchItems, addItems, deleteItem, updateItem } = useInventory()
 const items = ref([])
 const loading = ref(false)
+const isEdit = ref(false)
+const formData = ref({
+  id: null,
+  name: '',
+  sku: '',
+  price: 0,
+  stock: 0,
+})
+
+const handleEdit = (item) => {
+  dialog.value = true
+  isEdit.value = true
+  formData.value = {
+    id: item.id,
+    name: item.name,
+    sku: item.sku,
+    price: item.price,
+    stock: item.stock,
+  }
+}
+
+const handleAdd = () => {
+  dialog.value = true
+  isEdit.value = false
+  formData.value = {
+    id: null,
+    name: '',
+    sku: '',
+    price: 0,
+    stock: 0,
+  }
+}
+
+const handleSave = async () => {
+  try {
+    loading.value = true
+    if (isEdit.value) {
+      await updateItem({
+        id: formData.value.id,
+        data: {
+          name: formData.value.name,
+          sku: formData.value.sku,
+          price: formData.value.price,
+          stock: formData.value.stock
+        }
+      })
+    } else {
+      await addItems({
+        name: formData.value.name,
+        sku: formData.value.sku,
+        price: formData.value.price,
+        stock: formData.value.stock
+      })
+    }
+
+  } catch (error) {
+    console.error('Failed to save item:', error)
+    alert('Failed to save item. Please try again.')
+  } finally {
+
+    items.value = await fetchItems()
+    loading.value = false
+    dialog.value = false
+  }
+
+}
+
+
+const handleDelete = async (item) => {
+  if (!confirm(`Are you sure you want to delete "${item.name}"?`)) {
+    return
+  }
+  try {
+    loading.value = true
+    await deleteItem({ id: item.id })
+    items.value = await fetchItems()
+  } catch (error) {
+    alert('Failed to delete item:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
 
 onMounted(async () => {
@@ -60,13 +108,28 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main>
+  <div v-if="loading" class="text-center my-4">
+    <v-progress-circular color="primary" indeterminate></v-progress-circular>
+  </div>
+  <main v-else>
     <div class="d-flex justify-end my-4">
-      <v-btn @click="dialog = true">
+      <v-btn @click="handleAdd()">
         Add Item
       </v-btn>
     </div>
-    <v-data-table :items density="compact" :headers></v-data-table>
+
+    <v-data-table :items="items" density="compact" :headers>
+      <template v-slot:item.action="{ item }">
+        <v-row>
+          <v-btn @click="handleEdit(item)">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+          <v-btn @click="handleDelete(item)">
+            <v-icon>mdi-trash-can</v-icon>
+          </v-btn>
+        </v-row>
+      </template>
+    </v-data-table>
     <v-dialog v-model="dialog" max-width="600">
       <v-card>
         <v-card-title>
@@ -74,10 +137,10 @@ onMounted(async () => {
         </v-card-title>
 
         <v-card-text>
-          <v-text-field label="Item Name" />
-          <v-text-field label="SKU" />
-          <v-text-field label="Price" type="number" />
-          <v-text-field label="Stock" type="number" />
+          <v-text-field label="Item Name" v-model="formData.name" />
+          <v-text-field label="SKU" v-model="formData.sku" />
+          <v-text-field label="Price" type="number" v-model="formData.price" />
+          <v-text-field label="Stock" type="number" v-model="formData.stock" />
         </v-card-text>
 
         <v-card-actions>
@@ -85,8 +148,8 @@ onMounted(async () => {
           <v-btn color="secondary" @click="dialog = false">
             Cancel
           </v-btn>
-          <v-btn color="primary" @click="dialog = false">
-            Save
+          <v-btn color="primary" @click="handleSave()">
+            {{ isEdit ? "Update" : 'Save' }}
           </v-btn>
         </v-card-actions>
       </v-card>
