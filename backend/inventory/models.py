@@ -14,3 +14,7 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class  Order (models.Model):
+    order_id = models.UU

@@ -5,7 +5,6 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Product
 from .serializers import ProductSerializer
-from backend.inventory import serializers
 from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
